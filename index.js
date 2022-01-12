@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const PORT = 9000;
+const PORT = process.env.PORT;
 
 const movies = [
     {
