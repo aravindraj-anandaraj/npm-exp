@@ -136,11 +136,7 @@ app.get('/movies', async (req, res) => {
         req.query.rating = +req.query.rating
     }
     console.log(req.query);
-    const movies = await client
-        .db("guvi")
-            .collection("movies")
-            .find(req.query)
-            .toArray();
+    const movies = await getAllMovies(req);
 
     res.send(movies);
 })
@@ -150,10 +146,7 @@ app.get('/movies', async (req, res) => {
 app.post('/movies', async (req, res) => {
     const newMovie = req.body;
     console.log(newMovie);
-    const result = await client
-        .db("guvi")
-        .collection("movies")
-        .insertMany(newMovie);
+    const result = await addMovie(newMovie);
 
 res.send(result);
 });
@@ -165,10 +158,7 @@ app.get('/movies/:id', async (req, res) => {
     console.log(id);
     // db.movies.find({id: "102"})
     // const movie = movies.find(mv => mv.id == id);
-    const movie = await client
-        .db("guvi")
-        .collection("movies")
-        .findOne({ id: id });
+    const movie = await getMovieById(id);
     movie 
     ? res.send(movie) 
     : res
@@ -181,10 +171,7 @@ app.delete('/movies/:id', async (req, res) => {
     console.log(id);
     // db.movies.find({id: "102"})
     // const movie = movies.find(mv => mv.id == id);
-    const movie = await client
-        .db("guvi")
-        .collection("movies")
-        .deleteOne({ id: id })
+    const movie = await deleteMovieById(id);
     res.send(movie);
 })
 
@@ -201,3 +188,32 @@ app.delete('/movies/:id', async (req, res) => {
 app.listen(PORT, () => {
     console.log('Server started on port ', PORT);
 });
+
+async function deleteMovieById(id) {
+    return await client
+        .db("guvi")
+        .collection("movies")
+        .deleteOne({ id: id });
+}
+
+async function getMovieById(id) {
+    return await client
+        .db("guvi")
+        .collection("movies")
+        .findOne({ id: id });
+}
+
+async function addMovie(newMovie) {
+    return await client
+        .db("guvi")
+        .collection("movies")
+        .insertMany(newMovie);
+}
+
+async function getAllMovies(req) {
+    return await client
+        .db("guvi")
+        .collection("movies")
+        .find(req.query)
+        .toArray();
+}
