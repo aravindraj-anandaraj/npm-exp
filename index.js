@@ -8,7 +8,9 @@ import {MongoClient} from 'mongodb';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const app = express();
+import { moviesRouter } from './routes/movies.js';
+
+export const app = express();
 const PORT = process.env.PORT;
 
 const movies = [
@@ -90,7 +92,7 @@ async function createConnection(){
 }
 
 //Top level await - new feature
-const client = await createConnection(); 
+export const client = await createConnection(); 
 
 // Rest API endpoints
 
@@ -103,77 +105,7 @@ app.get('/', (req, res) => {
     res.send('Welcome to express.js');
 })
 
-
-// app.get('/movies', (req, res) => {
-//     const { language, rating } = req.query;
-//     console.log(req.query, language, rating);
-
-//     let filteredMovies = movies;
-
-//     if(language) {
-//         filteredMovies = filteredMovies.filter(mv => mv.language == language);
-//     }
-//     if(rating) {
-//         filteredMovies = filteredMovies.filter(mv => mv.rating == +rating);
-//     }
-
-//     res.send(filteredMovies);
-// })
-
-// Change the above in db compatible
-
-app.get('/movies', async (req, res) => {
-
-    // db.movies.find({});
-    // Find gives pagination (Cursor) by default, hence we will not get movies by default
-    // default result : {
-    //     "_events": {},
-    //     "_eventsCount": 0
-    // }
-    // convert cursor to array.
-
-    if(req.query.rating) {
-        req.query.rating = +req.query.rating
-    }
-    console.log(req.query);
-    const movies = await getAllMovies(req);
-
-    res.send(movies);
-})
-
-// Insert Movies
-
-app.post('/movies', async (req, res) => {
-    const newMovie = req.body;
-    console.log(newMovie);
-    const result = await addMovie(newMovie);
-
-res.send(result);
-});
-
-// Get individual movies
-
-app.get('/movies/:id', async (req, res) => {
-    const {id} = req.params;
-    console.log(id);
-    // db.movies.find({id: "102"})
-    // const movie = movies.find(mv => mv.id == id);
-    const movie = await getMovieById(id);
-    movie 
-    ? res.send(movie) 
-    : res
-    .status(404)
-    .send({message: "No movies found"});
-})
-
-app.delete('/movies/:id', async (req, res) => {
-    const {id} = req.params;
-    console.log(id);
-    // db.movies.find({id: "102"})
-    // const movie = movies.find(mv => mv.id == id);
-    const movie = await deleteMovieById(id);
-    res.send(movie);
-})
+app.use('/movies', moviesRouter);
 
 // update by movie id
 // Interstellar -> rating -> 8.6 -> 9
@@ -189,31 +121,4 @@ app.listen(PORT, () => {
     console.log('Server started on port ', PORT);
 });
 
-async function deleteMovieById(id) {
-    return await client
-        .db("guvi")
-        .collection("movies")
-        .deleteOne({ id: id });
-}
 
-async function getMovieById(id) {
-    return await client
-        .db("guvi")
-        .collection("movies")
-        .findOne({ id: id });
-}
-
-async function addMovie(newMovie) {
-    return await client
-        .db("guvi")
-        .collection("movies")
-        .insertMany(newMovie);
-}
-
-async function getAllMovies(req) {
-    return await client
-        .db("guvi")
-        .collection("movies")
-        .find(req.query)
-        .toArray();
-}
