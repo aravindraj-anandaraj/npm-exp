@@ -1,18 +1,19 @@
 import { client } from './index.js';
 import bcrypt from 'bcrypt';
+import { ObjectId } from 'mongodb';
 
 // Movies
 export async function deleteMovieById(id) {
     return await client
         .db("guvi")
         .collection("movies")
-        .deleteOne({ id: id });
+        .deleteOne({ _id: ObjectId(id) });
 }
 export async function getMovieById(id) {
     return await client
         .db("guvi")
         .collection("movies")
-        .findOne({ id: id });
+        .findOne({ _id: ObjectId(id) });
 }
 export async function addMovie(newMovie) {
     return await client
@@ -27,11 +28,11 @@ export async function getAllMovies(req) {
         .find(req.query)
         .toArray();
 }
-export async function updateMovieById(id, updateMovie) {
+export async function updateMovieById(id, { poster, rating, summary, title, trailer }) {
     return await client
         .db("guvi")
         .collection("movies")
-        .updateOne({ id: id }, { $set: updateMovie});
+        .updateOne({ _id: ObjectId(id) }, { $set: { poster, rating, summary, title, trailer }});
 }
 
 // Password
