@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { moviesRouter } from './routes/movies.js';
+import { usersRouter } from './routes/users.js';
 
 export const app = express();
 const PORT = process.env.PORT;
@@ -107,6 +108,8 @@ app.get('/', (req, res) => {
 
 app.use('/movies', moviesRouter);
 
+app.use('/users', usersRouter);
+
 // update by movie id
 // Interstellar -> rating -> 8.6 -> 9
 
@@ -121,4 +124,4 @@ app.listen(PORT, () => {
     console.log('Server started on port ', PORT);
 });
 
-
+// console.log(genPassword("pass@123")); 
